@@ -1,0 +1,17 @@
+[package]
+name = "unpaid-intern"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+bumpalo = "3.19"
+hashbrown = "0.15"
+rustc-hash = "2.1.1"
+
+[dependencies.serde]
+version = "1.0"
+optional = true
+features = ["derive"]
+
+[features]
+serialize = ["dep:serde"]
