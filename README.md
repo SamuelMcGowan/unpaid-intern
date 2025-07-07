@@ -5,7 +5,7 @@ cheaply store and compare many often identical strings. "Interning" a string ret
 this implementation, an ID) that is cheap to copy and to perform string equality checks on. This is
 achieved by deduplicating strings using an internal hash table.
 
-This string interner also stores all strings in a single bump-allocated arena, courtesy of [`bumpalo`],
+This string interner also stores all strings in a single bump-allocated arena, courtesy of [`bumpalo`](https://docs.rs/bumpalo/latest/bumpalo/),
 avoiding excessive allocation.
 
 I decided to represent interned strings with an integer ID (`NonZeroUsize` by default) instead of a reference to avoid introducing lifetimes.

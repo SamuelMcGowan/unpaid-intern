@@ -8,9 +8,9 @@
 //! This string interner also stores all strings in a single bump-allocated arena, courtesy of [`bumpalo`],
 //! avoiding excessive allocation.
 //!
-//! I decided to represent interned strings with an integer ID (`NonZeroUsize` by default) instead of a reference to avoid introducing lifetimes.
+//! I decided to represent interned strings with an integer ID ([`NonZeroUsize`](std::num::NonZeroUsize) by default) instead of a reference to avoid introducing lifetimes.
 //! This does mean that accessing the underlying string requires calling a method on the interner, but this is a
-//! single array lookup. You can also specify the backing type as `usize`, `u64`, `u32`, `NonZeroU64`, or `NonZeroU32`.
+//! single array lookup. You can also specify the backing type as `u32`, `u64`, `usize`, [`NonZeroU32`](std::num::NonZeroU32) or [`NonZeroU64`](std::num::NonZeroU64).
 //!
 //! # Example
 //! ```rust
