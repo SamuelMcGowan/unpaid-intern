@@ -10,11 +10,11 @@
 //!
 //! I decided to represent interned strings with an integer ID (`NonZeroUsize` by default) instead of a reference to avoid introducing lifetimes.
 //! This does mean that accessing the underlying string requires calling a method on the interner, but this is a
-//! single array lookup. You can also specify the backing type as `u32`, `u64`, `usize`, `NonZeroU32` or `NonZeroU64`.
+//! single array lookup. You can also specify the backing type as `usize`, `u64`, `u32`, `NonZeroU64`, or `NonZeroU32`.
 //!
 //! # Example
 //! ```rust
-//! use bayou_interner::Interner;
+//! use unpaid_intern::Interner;
 //!
 //! # fn main() {
 //! let interner = Interner::new();
@@ -29,6 +29,20 @@
 //!
 //! // Getting the associated string for an interned string.
 //! assert_eq!(interner.get_str(hello), Some("hello"));
+//! # }
+//! ```
+//!
+//! # Other `Istr` backing types
+//! ```rust
+//! use unpaid_intern::Interner;
+//!
+//! # fn main() {
+//! let interner: Interner<u64> = Interner::with_istr_repr();
+//!
+//! let foo = interner.intern("hiya");
+//!
+//! assert_eq!(std::mem::size_of_val(&foo), 8);
+//! assert_eq!(interner.get_str(foo), Some("hiya"));
 //! # }
 //! ```
 

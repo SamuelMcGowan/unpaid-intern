@@ -14,7 +14,7 @@ single array lookup. You can also specify the backing type as `u32`, `u64`, `usi
 
 # Example
 ```rust
-use bayou_interner::Interner;
+use unpaid_intern::Interner;
 
 # fn main() {
 let interner = Interner::new();
@@ -29,5 +29,19 @@ assert_ne!(hello, world);
 
 // Getting the associated string for an interned string.
 assert_eq!(interner.get_str(hello), Some("hello"));
+# }
+```
+
+# Other `Istr` backing types
+```rust
+use unpaid_intern::Interner;
+
+#fn main() {
+let interner: Interner<u64> = Interner::with_istr_repr();
+
+let foo = interner.intern("hiya");
+
+assert_eq!(std::mem::size_of_val(&foo), 8);
+assert_eq!(interner.get_str(foo), Some("hiya"));
 # }
 ```
