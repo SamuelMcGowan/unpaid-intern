@@ -1,5 +1,5 @@
-![Crates.io Version](https://img.shields.io/crates/v/unpaid-intern?link=https%3A%2F%2Fcrates.io%2Fcrates%2Funpaid-intern)
-![docs.rs](https://img.shields.io/docsrs/unpaid-intern?link=https%3A%2F%2Fdocs.rs%2Funpaid-intern%2Flatest%2Funpaid_intern%2F)
+[![Crates.io Version](https://img.shields.io/crates/v/unpaid-intern)](https://crates.io/crates/unpaid-intern)
+[![docs.rs](https://img.shields.io/docsrs/unpaid-intern)](https://docs.rs/unpaid-intern/latest/unpaid_intern/)
 
 A string interner.
 
