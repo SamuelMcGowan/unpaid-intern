@@ -1,3 +1,6 @@
+![Crates.io Version](https://img.shields.io/crates/v/unpaid-intern)
+![docs.rs](https://img.shields.io/docsrs/unpaid-intern)
+
 A string interner.
 
 A string interner is a data structure commonly used in compilers and other contexts that need to

@@ -1,7 +1,15 @@
 [package]
 name = "unpaid-intern"
-version = "0.1.0"
 edition = "2024"
+
+version = "0.1.0"
+
+description = "A convenient little string interner"
+license = "MPL-2.0"
+license-file = "LICENSE"
+
+documentation = "https://docs.rs/unpaid-intern/latest/unpaid_intern/"
+repository = "https://github.com/SamuelMcGowan/unpaid-intern"
 
 [dependencies]
 bumpalo = "3.19"
