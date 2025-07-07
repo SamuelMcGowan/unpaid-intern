@@ -8,9 +8,9 @@
 //! This string interner also stores all strings in a single bump-allocated arena, courtesy of [`bumpalo`],
 //! avoiding excessive allocation.
 //!
-//! I decided to represent interned strings with a 32-bit ID instead of a reference to avoid introducing lifetimes.
+//! I decided to represent interned strings with an integer ID (`NonZeroUsize` by default) instead of a reference to avoid introducing lifetimes.
 //! This does mean that accessing the underlying string requires calling a method on the interner, but this is a
-//! single array lookup.
+//! single array lookup. You can also specify the backing type as `u32`, `u64`, `usize`, `NonZeroU32` or `NonZeroU64`.
 //!
 //! # Example
 //! ```rust
@@ -33,6 +33,8 @@
 //! ```
 
 mod arena;
-mod intern;
+mod interner;
+mod istr;
 
-pub use intern::{Interner, Istr};
+pub use interner::Interner;
+pub use istr::{Istr, IstrRepr};

@@ -1,59 +1,56 @@
-use std::{cell::RefCell, hash::BuildHasher, num::NonZeroU32, ops::Index};
+use std::{cell::RefCell, hash::BuildHasher, num::NonZeroUsize, ops::Index};
 
 use hashbrown::{HashTable, hash_table::Entry};
 use rustc_hash::FxBuildHasher;
 
-use crate::arena::InternerArena;
-
-/// An ID for an interned string. Cheap to copy, and to perform string equality checks on, as
-/// internally it is simply a [`NonZeroU32`] ID. It can also be stored inside an [`Option`] for free
-/// due to niche optimisation.
-///
-/// In order to get the associated string, the interned string must be looked up
-/// in the interner it was created with.
-///
-/// Note that performing an equality check on interned strings from different
-/// interners will give a nonsensical result.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "serialize", derive(serde::Serialize, serde::Deserialize))]
-pub struct Istr(NonZeroU32);
-
-impl Istr {
-    #[inline]
-    fn from_index(index: usize) -> Option<Self> {
-        let n = u32::try_from(index).ok()? + 1;
-        Some(Self(NonZeroU32::new(n)?))
-    }
-
-    #[inline]
-    fn to_index(self) -> usize {
-        self.0.get() as usize - 1
-    }
-}
+use crate::{
+    arena::InternerArena,
+    istr::{Istr, IstrRepr},
+};
 
 #[derive(Clone, Copy)]
-struct Metadata {
-    interned: Istr,
+struct Metadata<I: IstrRepr> {
+    interned: Istr<I>,
     hash: u64,
 }
 
-#[derive(Default)]
-struct Lookup {
+struct Lookup<I: IstrRepr> {
     random_state: FxBuildHasher,
-    table: HashTable<Metadata>,
+    table: HashTable<Metadata<I>>,
 }
 
 /// Storage for interned strings.
-#[derive(Default)]
-pub struct Interner {
-    lookup: RefCell<Lookup>,
+pub struct Interner<I: IstrRepr = NonZeroUsize> {
+    lookup: RefCell<Lookup<I>>,
     arena: InternerArena,
+}
+
+impl<I: IstrRepr> Default for Interner<I> {
+    fn default() -> Self {
+        Self {
+            lookup: RefCell::new(Lookup {
+                random_state: FxBuildHasher::default(),
+                table: HashTable::default(),
+            }),
+            arena: InternerArena::default(),
+        }
+    }
 }
 
 impl Interner {
     /// Create a new interner.
+    ///
+    /// Uses [`NonZeroUsize`](std::num::NonZeroUsize) as the [`Istr`] backing type.
     #[inline]
     pub fn new() -> Self {
+        Self::default()
+    }
+}
+
+impl<I: IstrRepr> Interner<I> {
+    /// Create a new interner with the inferred [`Istr`] backing type.
+    #[inline]
+    pub fn with_istr_repr() -> Self {
         Self::default()
     }
 
@@ -81,20 +78,20 @@ impl Interner {
     /// Panics if there are no more available IDs. An interner can store up
     /// to `u32::MAX - 1` strings before panicking.
     #[inline]
-    pub fn intern(&self, key: &str) -> Istr {
+    pub fn intern(&self, key: &str) -> Istr<I> {
         self.try_intern(key).expect("too many interned strings")
     }
 
     /// Like [`Interner::intern`], but non-panicking in the case that there are no
     /// more available IDs.
-    pub fn try_intern(&self, key: &str) -> Option<Istr> {
+    pub fn try_intern(&self, key: &str) -> Option<Istr<I>> {
         let mut lookup = self.lookup.borrow_mut();
 
         let hash = lookup.random_state.hash_one(key);
 
         let entry = lookup.table.entry(
             hash,
-            |metadata| self.arena.get(metadata.interned.to_index()) == Some(key),
+            |metadata| self.arena.get(metadata.interned.repr.to_index()) == Some(key),
             |metadata| metadata.hash,
         );
 
@@ -102,7 +99,9 @@ impl Interner {
             Entry::Occupied(entry) => entry.get().interned,
             Entry::Vacant(entry) => {
                 let index = self.arena.push_str(key);
-                let interned = Istr::from_index(index)?;
+                let interned = Istr {
+                    repr: I::from_index(index)?,
+                };
 
                 entry.insert(Metadata { interned, hash });
 
@@ -127,7 +126,7 @@ impl Interner {
     /// assert_eq!(interner.get_interned("world"), None);
     /// # }
     /// ```
-    pub fn get_interned(&self, key: &str) -> Option<Istr> {
+    pub fn get_interned(&self, key: &str) -> Option<Istr<I>> {
         let lookup = self.lookup.borrow();
 
         let hash = lookup.random_state.hash_one(key);
@@ -135,7 +134,7 @@ impl Interner {
         lookup
             .table
             .find(hash, |metadata| {
-                self.arena.get(metadata.interned.to_index()) == Some(key)
+                self.arena.get(metadata.interned.repr.to_index()) == Some(key)
             })
             .map(|metadata| metadata.interned)
     }
@@ -160,16 +159,16 @@ impl Interner {
     /// # }
     /// ```
     #[inline]
-    pub fn get_str(&self, interned: Istr) -> Option<&str> {
-        self.arena.get(interned.to_index())
+    pub fn get_str(&self, interned: Istr<I>) -> Option<&str> {
+        self.arena.get(interned.repr.to_index())
     }
 }
 
-impl Index<Istr> for Interner {
+impl<I: IstrRepr> Index<Istr<I>> for Interner<I> {
     type Output = str;
 
     #[inline]
-    fn index(&self, interned: Istr) -> &Self::Output {
+    fn index(&self, interned: Istr<I>) -> &Self::Output {
         self.get_str(interned).expect("string not in interner")
     }
 }
