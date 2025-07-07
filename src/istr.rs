@@ -18,7 +18,16 @@ pub struct Istr<Repr: IstrRepr = NonZeroUsize> {
 
 /// A backing type for an [`Istr`].
 pub trait IstrRepr: Copy + sealed::Sealed {
+    /// Convert a `usize` index to this backing type.
+    ///
+    /// Returns `None` if the given index is too large to
+    /// fit into this type.
     fn from_index(index: usize) -> Option<Self>;
+
+    /// Convert this backing value back to a `usize`.
+    ///
+    /// This is allowed to panic or overflow if the value is
+    /// out of bounds of a `usize`.
     fn to_index(self) -> usize;
 }
 
@@ -31,21 +40,25 @@ impl sealed::Sealed for NonZeroU64 {}
 impl sealed::Sealed for NonZeroU32 {}
 
 impl IstrRepr for NonZeroUsize {
+    #[inline]
     fn from_index(index: usize) -> Option<Self> {
         NonZeroUsize::new(index.wrapping_add(1))
     }
 
+    #[inline]
     fn to_index(self) -> usize {
         self.get() - 1
     }
 }
 
 impl IstrRepr for NonZeroU64 {
+    #[inline]
     fn from_index(index: usize) -> Option<Self> {
         let n = u64::try_from(index).ok()?;
         NonZeroU64::new(n.wrapping_add(1))
     }
 
+    #[inline]
     fn to_index(self) -> usize {
         self.get() as usize - 1
     }
