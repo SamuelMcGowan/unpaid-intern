@@ -60,7 +60,7 @@ impl<I: IstrRepr> Interner<I> {
     ///
     ///
     /// ```rust
-    /// # use bayou_interner::Interner;
+    /// # use unpaid_intern::Interner;
     /// #
     /// # fn main() {
     /// let interner = Interner::new();
@@ -75,8 +75,7 @@ impl<I: IstrRepr> Interner<I> {
     /// ```
     ///
     /// # Panics
-    /// Panics if there are no more available IDs. An interner can store up
-    /// to `u32::MAX - 1` strings before panicking.
+    /// Panics if there are no more available IDs.
     #[inline]
     pub fn intern(&self, key: &str) -> Istr<I> {
         self.try_intern(key).expect("too many interned strings")
@@ -115,7 +114,7 @@ impl<I: IstrRepr> Interner<I> {
     /// Get an interned string if this string is interned, otherwise return `None`.
     ///
     /// ```rust
-    /// # use bayou_interner::{Interner, Istr};
+    /// # use unpaid_intern::{Interner, Istr};
     /// #
     /// # fn main() {
     /// let interner = Interner::new();
@@ -149,7 +148,7 @@ impl<I: IstrRepr> Interner<I> {
     /// interned string is not found in this interner instead of returning `None`.
     ///
     /// ```rust
-    /// # use bayou_interner::Interner;
+    /// # use unpaid_intern::Interner;
     /// #
     /// # fn main() {
     /// let interner = Interner::new();

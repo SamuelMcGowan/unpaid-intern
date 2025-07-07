@@ -32,7 +32,7 @@ impl sealed::Sealed for NonZeroU32 {}
 
 impl IstrRepr for NonZeroUsize {
     fn from_index(index: usize) -> Option<Self> {
-        NonZeroUsize::new(index.wrapping_sub(1))
+        NonZeroUsize::new(index.wrapping_add(1))
     }
 
     fn to_index(self) -> usize {
@@ -43,7 +43,7 @@ impl IstrRepr for NonZeroUsize {
 impl IstrRepr for NonZeroU64 {
     fn from_index(index: usize) -> Option<Self> {
         let n = u64::try_from(index).ok()?;
-        NonZeroU64::new(n.wrapping_sub(1))
+        NonZeroU64::new(n.wrapping_add(1))
     }
 
     fn to_index(self) -> usize {
@@ -54,8 +54,8 @@ impl IstrRepr for NonZeroU64 {
 impl IstrRepr for NonZeroU32 {
     #[inline]
     fn from_index(index: usize) -> Option<Self> {
-        let n: u32 = u32::try_from(index).ok()? + 1;
-        Self::new(n)
+        let n: u32 = u32::try_from(index).ok()?;
+        Self::new(n.wrapping_add(1))
     }
 
     #[inline]

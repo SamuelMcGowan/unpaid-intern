@@ -36,7 +36,7 @@ assert_eq!(interner.get_str(hello), Some("hello"));
 ```rust
 use unpaid_intern::Interner;
 
-#fn main() {
+# fn main() {
 let interner: Interner<u64> = Interner::with_istr_repr();
 
 let foo = interner.intern("hiya");
